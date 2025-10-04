@@ -14,23 +14,6 @@ export default function Home() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [showActive, setShowActive] = useState(true);
 
-  //   //sorting
-  const [sortBy, setSortBy] = useState("budget");
-  const [sortDir, setSortDir] = useState("asc");
-
-  const sortedCampaigns = [...campaigns].sort((a, b) => {
-    if (sortBy === "date") {
-      return Number(a.budget) - Number(b.budget);
-    }
-    if (sortBy === "start_date") {
-      return a.start_date.localeCompare(b.start_date);
-    }
-    if (sortBy === "end_date") {
-      return a.end_date.localeCompare(b.end_date);
-    }
-    return 0;
-  });
-
   const today = new Date().toISOString().split("T")[0];
   console.log("Today's date:", today);
 
@@ -94,12 +77,22 @@ export default function Home() {
                   showActive ? getStatus(campaign) === "active" : true
                 )
                 .map((campaign) => (
-                  <tr key={campaign.id}>
-                    <td>{campaign.name}</td>
-                    <td>{campaign.budget}</td>
-                    <td>{campaign.start_date}</td>
-                    <td>{campaign.end_date}</td>
-                    <td>{getStatus(campaign)}</td>
+                  <tr key={campaign.id} className="hover:bg-gray-100">
+                    <td className="border border-gray-300 px-4 py-2 text-left">
+                      {campaign.name}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2 text-left">
+                      {campaign.budget}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2 text-left">
+                      {campaign.start_date}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2 text-left">
+                      {campaign.end_date}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2 text-left">
+                      {getStatus(campaign)}
+                    </td>
                   </tr>
                 ))}
             </tbody>
