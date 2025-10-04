@@ -1,5 +1,8 @@
 "use client";
 import CampaignForm from "./components/CampaignForm";
+import CampaignTable from "./components/CampaignTable";
+import CampaignPieChart from "./components/CampaignPieChart";
+import LoginForm from "./components/LoginForm";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -13,18 +16,13 @@ export default function Home() {
   };
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [showActive, setShowActive] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const today = new Date().toISOString().split("T")[0];
-  console.log("Today's date:", today);
-
-  const getStatus = (campaign: Campaign) => {
-    return today >= campaign.start_date && today <= campaign.end_date
-      ? "active"
-      : "inactive";
-  };
   useEffect(() => {
-    loadCampaigns();
-  }, []);
+    if (isAuthenticated) {
+      loadCampaigns();
+    }
+  }, [isAuthenticated]);
 
   const loadCampaigns = () => {
     fetch("/api/campaigns")
@@ -33,73 +31,53 @@ export default function Home() {
       .catch((error) => console.error("Error fetching campaigns:", error));
   };
 
+  const handleLogin = (username: string, password: string): boolean => {
+    console.log("Login attempt:", { username, password });
+    if (username === "admin" && password === "1234") {
+      console.log("Login successful");
+      setIsAuthenticated(true);
+      return true;
+    }
+    console.log("Login failed");
+    return false;
+  };
+
+  if (!isAuthenticated) {
+    return <LoginForm onLogin={handleLogin} />;
+  }
+
   return (
-    <div>
-      <main>
-        <h1 className="text-4xl font-bold text-center mt-8">
-          Campaign Manager
-        </h1>
-        <div>
-          <CampaignForm onCampaignCreated={loadCampaigns} />
+    <div className="min-h-screen bg-gray-50">
+      <main className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+            Campaign Manager
+          </h1>
+          <button
+            onClick={() => setIsAuthenticated(false)}
+            className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            Logout
+          </button>
         </div>
-        <div className="w-full">
-          <div className="flex justify-end m:w-3/4 max-w-4xl mx-8 md:mx-auto">
-            <button
-              className="ml-8 mb-4 bg-blue-500 text-white px-4 py-2 rounded-lg"
-              onClick={() => setShowActive(!showActive)}
-            >
-              {showActive ? "Show All" : "Show Active"}
-            </button>
+        
+        {/* Form and Chart side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 items-start">
+          <div>
+            <CampaignForm onCampaignCreated={loadCampaigns} />
           </div>
-          <table className="w-full border-collapse border border-gray-300 mx-8 md:mx-auto md:w-3/4 max-w-4xl">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 px-4 py-2 text-left">
-                  Name
-                </th>
-                <th className="border border-gray-300 px-4 py-2 text-left">
-                  Budget
-                </th>
-                <th className="border border-gray-300 px-4 py-2 text-left">
-                  Start Date
-                </th>
-                <th className="border border-gray-300 px-4 py-2 text-left">
-                  End Date
-                </th>
-                <th className="border border-gray-300 px-4 py-2 text-left">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {campaigns
-                .filter((campaign) =>
-                  showActive ? getStatus(campaign) === "active" : true
-                )
-                .map((campaign) => (
-                  <tr key={campaign.id} className="hover:bg-gray-100">
-                    <td className="border border-gray-300 px-4 py-2 text-left">
-                      {campaign.name}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2 text-left">
-                      {campaign.budget}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2 text-left">
-                      {campaign.start_date}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2 text-left">
-                      {campaign.end_date}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2 text-left">
-                      {getStatus(campaign)}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+          <div>
+            <CampaignPieChart campaigns={campaigns} />
+          </div>
         </div>
+        
+        {/* Table */}
+        <CampaignTable 
+          campaigns={campaigns} 
+          showActive={showActive} 
+          onToggleFilter={() => setShowActive(!showActive)} 
+        />
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center"></footer>
     </div>
   );
 }
