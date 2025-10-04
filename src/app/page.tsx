@@ -45,7 +45,7 @@ export default function Home() {
         <div className="w-full">
           <div className="flex justify-end m:w-3/4 max-w-4xl mx-8 md:mx-auto">
             <button
-              className="ml-8 mb-4 bg-blue-500 text-white px-4 py-2 rounded"
+              className="ml-8 mb-4 bg-blue-500 text-white px-4 py-2 rounded-lg"
               onClick={() => setShowActive(!showActive)}
             >
               {showActive ? "Show All" : "Show Active"}
