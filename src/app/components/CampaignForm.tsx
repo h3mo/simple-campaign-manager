@@ -61,6 +61,7 @@ const CampaignForm: React.FC<CampaignFormProps> = ({ onCampaignCreated }) => {
         onChange={(e) =>
           setForm({ ...form, budget: parseFloat(e.target.value) })
         }
+        min={1}
         type="number"
         required
         placeholder="Budget"
